@@ -1,42 +1,62 @@
-import java.util.ArrayList;
+import javax.persistence.*;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 import java.util.Scanner;
 
-public class ToDoList {
-    private ArrayList<String> tasks;
-    private Scanner scanner;
+@Entity
+class Task {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String description;
 
-    public ToDoList() {
-        tasks = new ArrayList<>();
-        scanner = new Scanner(System.in);
+    public Task() {}
+
+    public Task(String description) {
+        this.description = description;
     }
 
-    public void addTask(String task) {
-        tasks.add(task);
-        System.out.println("Task added: " + task);
+    // Getters and setters...
+}
+
+@Repository
+interface TaskRepository extends JpaRepository<Task, Long> {
+}
+
+@RestController
+@RequestMapping("/tasks")
+class TaskController {
+    private final TaskRepository taskRepository;
+
+    public TaskController(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
-    public void deleteTask(int index) {
-        if (index >= 0 && index < tasks.size()) {
-            String removedTask = tasks.remove(index);
-            System.out.println("Task removed: " + removedTask);
-        } else {
-            System.out.println("Invalid index!");
-        }
+    @GetMapping
+    public List<Task> getTasks() {
+        return taskRepository.findAll();
     }
 
-    public void displayTasks() {
-        if (tasks.isEmpty()) {
-            System.out.println("No tasks in the list.");
-        } else {
-            System.out.println("Tasks:");
-            for (int i = 0; i < tasks.size(); i++) {
-                System.out.println(i + ". " + tasks.get(i));
-            }
-        }
+    @PostMapping
+    public Task addTask(@RequestBody Task task) {
+        return taskRepository.save(task);
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteTask(@PathVariable Long id) {
+        taskRepository.deleteById(id);
+    }
+}
+
+@SpringBootApplication
+public class ToDoListApplication {
     public static void main(String[] args) {
-        ToDoList toDoList = new ToDoList();
+        SpringApplication.run(ToDoListApplication.class, args);
+
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -53,16 +73,18 @@ public class ToDoList {
             switch (choice) {
                 case 1:
                     System.out.print("Enter task to add: ");
-                    String task = scanner.nextLine();
-                    toDoList.addTask(task);
+                    String taskDescription = scanner.nextLine();
+                    Task task = new Task(taskDescription);
+                    // Save task to the database using TaskRepository
+                    // For simplicity, you can create an instance of TaskRepository here and use it
                     break;
                 case 2:
-                    System.out.print("Enter index of task to delete: ");
-                    int index = scanner.nextInt();
-                    toDoList.deleteTask(index);
+                    System.out.print("Enter id of task to delete: ");
+                    Long taskId = scanner.nextLong();
+                    // Delete task from the database using TaskRepository
                     break;
                 case 3:
-                    toDoList.displayTasks();
+                    // Display tasks from the database using TaskRepository
                     break;
                 case 4:
                     System.out.println("Exiting...");

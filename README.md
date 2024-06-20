@@ -7,7 +7,7 @@ cd To-Do-List-Manager
 
 3. Create or Update README.md: Open the README.md file in a text editor or use any markdown editor of your choice to update the file.
 
-4. Insert the Usage Section: Paste the following content into your README.md file:
+4. Insert the Usage Section:
 ## Usage
 
 ### Setup
